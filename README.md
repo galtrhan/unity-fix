@@ -15,18 +15,17 @@ and refuses to start.
 
 ```sh
 # 1. Build the fix libraries
-./build.sh
+make
 
-# 2. Apply to any game directory
-./apply.sh /path/to/game/directory
-
-# Or manually:
-LD_PRELOAD=/path/to/unity-fix-32.so ./GameBinary
+# 2. Run the game with the library preloaded
+# Choose the library matching your game's architecture
+LD_PRELOAD=/path/to/unity-fix-64.so ./GameBinary
 ```
 
 ## Confirmed Working Games
 
 - Shadowrun Returns / Dragonfall / Hong Kong
+- Wasteland 2: Director's Cut
 - Infinifactory
 - Motorsport Manager
 - Creeper World 3: Arc Eternal
@@ -36,13 +35,31 @@ LD_PRELOAD=/path/to/unity-fix-32.so ./GameBinary
 - Agatha Christie – The ABC Murders
 - And many other Unity 4.x titles
 
-## Steam Launch Options
+## Setting the LD_PRELOAD
+
+### Steam
 
 Set this in Properties > Launch Options:
 
 ```
 LD_PRELOAD="/path/to/unity-fix-32.so:${LD_PRELOAD}" %command%
 ```
+
+### GOG (game-in-Browser wrapper)
+
+The `.so` lives at `<game-dir>/start.sh`, which sources the GOG runtime. Edit
+it and export `LD_PRELOAD` inside the `run_game()` function before the binary
+is executed:
+
+```sh
+run_game() {
+    export LD_PRELOAD="${CURRENT_DIR}/game/unity-fix-64.so:${LD_PRELOAD}"
+    # ... rest of the function
+}
+```
+
+Note that GOG installs into `~/Games/gog/<gametitle>`, with the actual game
+binary inside the `game/` subdirectory.
 
 ## Technical Details
 
